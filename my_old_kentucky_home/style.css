@@ -1,0 +1,12 @@
+body {
+text-align: center;
+font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+background-image: url("Kentucky-Flag.jpg");
+color: #FFFF99;
+}
+
+img {
+
+	height: 220px;
+	width: 300px; 
+}
