@@ -1,5 +1,7 @@
+request = new XMLHttpRequest();
+
+
 function parse() {
-	request = new XMLHttpRequest();
 
 	//makes request
 	request.open("GET", "data.json", true);
