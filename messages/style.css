@@ -1,1 +1,6 @@
-/* Your CSS here... */
+p {
+	font-size: 20px;
+	font-family: Georgia;
+	color: beige;
+	background-color: green;
+}

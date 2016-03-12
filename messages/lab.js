@@ -1,4 +1,4 @@
-request = new XMLHttpRequest();
+var request = new XMLHttpRequest();
 
 
 function parse() {
@@ -10,11 +10,11 @@ function parse() {
 	request.onreadystatechange = function () {
 		if (request.readyState == 4 && request.status == 200) {
 			data = request.responseText;
-			messageData = JSON.parse(data);
+			mes = JSON.parse(data);
 			message = document.getElementById("messages");
-			for (i = 0; i < messageData.length; i++) {
+			for (i = 0; i < mes.length; i++) {
 				console.log("HI");
-				message.innerHTML = "<p>messageData[i].content + " " + messageData[i].username</p>";
+				message.innerHTML += "<p>" + mes[i]["content"] + " " + mes[i]["username"] + "</p>";
 			}
 		}
 	};
