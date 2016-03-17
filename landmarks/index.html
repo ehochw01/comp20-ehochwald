@@ -180,6 +180,20 @@
 					});
 
 					closest_lm_marker.setMap(map);
+
+				var polyline_coordinates = [
+					{lat: myLat, lng: myLng},
+					{lat: closest_lm["geometry"]["coordinates"][1], lng: closest_lm["geometry"]["coordinates"][0]}
+				];
+
+				var pline = new google.maps.Polyline({
+				    path: polyline_coordinates,
+				    strokeColor: 'blue',
+				    strokeOpacity: 1.0,
+				    strokeWeight: 1
+				  });	
+
+				  pline.setMap(map);				
 			}
 
 			function distance(lat1, lon1, lat2, lon2) {
