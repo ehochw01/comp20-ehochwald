@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>Geolocation Map Example</title>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true"></script>
+		<link rel="stylesheet" href="style.css" />
+		
+		<script>
+			var myLat = 0;
+			var myLng = 0;
+			var request = new XMLHttpRequest();
+			var me = new google.maps.LatLng(myLat, myLng);
+			var myOptions = {
+						zoom: 14, // The larger the zoom number, the bigger the zoom
+						center: me,
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+				};
+			var map;
+			var marker = [];
+			var land_marker = []; // short for landmark_markers
+			var image = 'small_amp.png';
+			var l_image = 'mini_changefire.jpeg';
+			var infowindow = new google.maps.InfoWindow();
+			var data;
+			var my_login = "KITTY_KING";
+			var my_marker;
+			var my_image = 'space_ink_octopus.png';
+			var closest_lm_dist;
+			var closest_lm;
+
+			function init()
+			{
+				map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+				getMyLocation();
+			}
+			
+			function getMyLocation() {
+				if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
+					navigator.geolocation.getCurrentPosition(function(position) {
+						myLat = position.coords.latitude;
+						myLng = position.coords.longitude;
+						post_DataStore();
+					});
+				}
+				else {
+					alert("Geolocation is not supported by your web browser.  What a shame!");
+				}
+			}
+
+			function post_DataStore() {
+				var request = new XMLHttpRequest();
+				var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
+				var params = "login=KITTY_KING&lat=" + myLat + "&lng=" + myLng;
+				request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
+
+				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+				request.onreadystatechange = function() {//Call a function when the state changes.
+    				if(request.readyState == 4 && request.status == 200) {
+        				var raw = request.responseText;
+        				data = JSON.parse(raw);
+        				// console.log(data);
+        				var landmarks = data["landmarks"];
+        				//console.log(landmarks);
+        				for (var i = 0; i < data["people"].length; i++) {
+        					renderMap(data["people"][i], i, landmarks);
+        				}
+        				
+        			}
+				}
+				request.send(params);
+			}
+
+			function renderMap(person, i, landmarks)
+			{
+				var loc = new google.maps.LatLng(person.lat, person.lng);
+				
+				// Update map and go there...
+				if (person.login == my_login) { 
+					map.panTo(loc);
+					my_marker = new google.maps.Marker({
+						position: loc,
+						title: my_login,
+						icon: my_image
+					});
+					marker[i] = my_marker;
+					my_marker.setMap(map);
+					
+					// Open info window on click of marker
+					
+					infowindow.setContent(my_marker.title);
+					infowindow.open(map, my_marker);
+					find_closest(landmarks);
+
+				} else {
+					var dist = distance(person.lat, person.lng, myLat, myLng);
+					marker[i] = new google.maps.Marker({
+						position: loc,
+						title: person.login,
+						icon: image
+					});
+					google.maps.event.addListener(marker[i], 'click', function() {
+						infowindow.setContent(marker[i].title + " " + dist + " miles");
+						infowindow.open(map, marker[i]);
+					});
+					marker[i].setMap(map);
+
+					// Open info window on click of marker
+				}
+			}
+
+			function find_closest(landmarks) {
+				closest_lm_dist = distance(landmarks[0]["geometry"]["coordinates"][1], landmarks[0]["geometry"]["coordinates"][0],
+															myLat, myLng);
+				var j = 0;
+				var closest_index = 0;
+				var d = [];
+
+				for (var k = 0; k < landmarks.length; k++) {
+					d[k] = distance(landmarks[k]["geometry"]["coordinates"][1], landmarks[k]["geometry"]["coordinates"][0],
+															myLat, myLng);
+					if (d < closest_lm_dist) {
+						closest_lm_dist = d;
+						closest_index = k;
+					}
+				}
+
+				closest_lm = landmarks[closest_index];
+				set_closest_landmark();
+
+				for (var i = 0; i < d.length; i++) {
+					if (d[i] < 1) {
+						if (i != closest_index) {
+							display_landmark(landmarks[i], j, d);
+							j++;
+						}
+					}
+				}
+			//	set_closest_info_window();
+			}
+
+			function display_landmark (lm, i) {
+				var loc = new google.maps.LatLng(lm["geometry"]["coordinates"][1], lm["geometry"]["coordinates"][0]);
+					land_marker[i] = new google.maps.Marker({
+						position: loc,
+						title: lm["properties"]["Location Name"],
+						icon: l_image
+					}); 
+
+					google.maps.event.addListener(land_marker[i], 'click', function() {
+						infowindow.setContent(lm["properties"]["Details"]);
+						infowindow.open(map, land_marker[i]);
+					});
+					land_marker[i].setMap(map);
+			} 
+
+			function set_closest_landmark() {
+				console.log(closest_lm);
+				var loc = new google.maps.LatLng(closest_lm["geometry"]["coordinates"][1], closest_lm["geometry"]["coordinates"][0]);
+				var closest_lm_marker = new google.maps.Marker({
+						position: loc,
+						title: closest_lm["properties"]["Location Name"],
+						icon: l_image
+					}); 
+				google.maps.event.addListener(my_marker, 'click', function() {
+					infowindow.setContent(closest_lm["properties"]["Location Name"] + " " + closest_lm_dist);
+					infowindow.open(map, closest_lm_marker);
+				});
+
+			}
+
+			function distance(lat1, lon1, lat2, lon2) {
+				var R = 6371; // km 
+			    var dLat = (lat2-lat1).toRad();  
+			    var dLon = (lon2-lon1).toRad();  
+			    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+			                    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+			                    Math.sin(dLon/2) * Math.sin(dLon/2);  
+			    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+			    var d = (R * c) / 1.609344; 
+			    return d;
+			}
+
+			Number.prototype.toRad = function() {
+   				return this * Math.PI / 180;
+			}
+		</script>
+	</head>
+	
+	<body onload="init()">
+		<div id="map_canvas"></div>
+	</body>
+</html>
