@@ -11,13 +11,14 @@
 		<script>
 			var myLat = 0;
 			var myLng = 0;
-			var request = new XMLHttpRequest();
 			var me = new google.maps.LatLng(myLat, myLng);
 			var myOptions = {
 						zoom: 14, // The larger the zoom number, the bigger the zoom
 						center: me,
 						mapTypeId: google.maps.MapTypeId.ROADMAP
 				};
+
+
 			var map;
 			var marker = [];
 			var land_marker = []; // short for landmark_markers
@@ -54,7 +55,7 @@
 				var request = new XMLHttpRequest();
 				var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
 				var params = "login=KITTY_KING&lat=" + myLat + "&lng=" + myLng;
-				request.open("POST", "https://defense-in-derpth.herokuapp.com/sendLocation", true);
+				request.open("POST", url, true);
 
 				request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
@@ -93,6 +94,7 @@
 					
 					infowindow.setContent(my_marker.title);
 					infowindow.open(map, my_marker);
+
 					find_closest(landmarks);
 
 				} else {
@@ -106,15 +108,14 @@
 						infowindow.setContent(marker[i].title + " " + dist + " miles");
 						infowindow.open(map, marker[i]);
 					});
-					marker[i].setMap(map);
-
-					// Open info window on click of marker
 				}
+				// Open info window on click of marker				
+				marker[i].setMap(map);
 			}
 
 			function find_closest(landmarks) {
-				closest_lm_dist = distance(landmarks[0]["geometry"]["coordinates"][1], landmarks[0]["geometry"]["coordinates"][0],
-															myLat, myLng);
+				closest_lm_dist = distance(landmarks[0]["geometry"]["coordinates"][1], 
+					landmarks[0]["geometry"]["coordinates"][0], myLat, myLng);
 				var j = 0;
 				var closest_index = 0;
 				var d = [];
@@ -146,7 +147,7 @@
 				var loc = new google.maps.LatLng(lm["geometry"]["coordinates"][1], lm["geometry"]["coordinates"][0]);
 					land_marker[i] = new google.maps.Marker({
 						position: loc,
-						title: lm["properties"]["Location Name"],
+						title: lm["properties"]["Location_Name"],
 						icon: l_image
 					}); 
 
@@ -159,17 +160,26 @@
 
 			function set_closest_landmark() {
 				console.log(closest_lm);
-				var loc = new google.maps.LatLng(closest_lm["geometry"]["coordinates"][1], closest_lm["geometry"]["coordinates"][0]);
+				var loc = new google.maps.LatLng(closest_lm["geometry"]["coordinates"][1], 
+					closest_lm["geometry"]["coordinates"][0]);
 				var closest_lm_marker = new google.maps.Marker({
 						position: loc,
-						title: closest_lm["properties"]["Location Name"],
+						title: closest_lm["properties"]["Location_Name"],
 						icon: l_image
 					}); 
-				google.maps.event.addListener(my_marker, 'click', function() {
-					infowindow.setContent(closest_lm["properties"]["Location Name"] + " " + closest_lm_dist);
-					infowindow.open(map, closest_lm_marker);
-				});
 
+					google.maps.event.addListener(closest_lm_marker, 'click', function() {
+						infowindow.setContent(closest_lm["properties"]["Details"]);
+						infowindow.open(map, closest_lm_marker);
+					});
+
+
+					google.maps.event.addListener(my_marker, 'click', function() {
+						infowindow.setContent(my_login + ". Closest landmark: " + closest_lm["properties"]["Location_Name"] + " " + closest_lm_dist + " miles away.");
+						infowindow.open(map, my_marker);
+					});
+
+					closest_lm_marker.setMap(map);
 			}
 
 			function distance(lat1, lon1, lat2, lon2) {
