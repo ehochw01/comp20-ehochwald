@@ -7,6 +7,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script>
 		$(document).ready(function(){
+			enter_messages(); /*
 			function reload() {
 
 				keys = [];
@@ -19,15 +20,16 @@
 				}
 
 				enter_messages();
-			}
+			} */
 
 			function enter_messages() {
 				$(document).keypress(function(e) {
 				    if(e.which == 13) {
+				    	var message_txt = $("#msg").val();
 				        var date = new Date();
-				        var date_string = date.toString() + " - ";
-				        localStorage.setItem(date, date_string);
-				        $('#log').prepend('<p>' + date_string + '</p>');
+				        var message_string = date.toString() + " - " + message_txt;
+				        localStorage[date.getTime()] = message_string;
+				        $('#log').prepend('<p>' + message_string + '</p>');
 				    }
 				});
 			}
