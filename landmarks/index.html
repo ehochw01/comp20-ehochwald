@@ -16,7 +16,7 @@
 						zoom: 14, // The larger the zoom number, the bigger the zoom
 						center: me,
 						mapTypeId: google.maps.MapTypeId.ROADMAP
-				};
+			};
 
 
 			var map;
@@ -53,7 +53,7 @@
 
 			function post_DataStore() {
 				var request = new XMLHttpRequest();
-				var url = "https://defense-in-derpth.herokuapp.com/sendLocation";
+				var url = "http://gentle-bayou-83222.herokuapp.com/sendLocation";
 				var params = "login=KITTY_KING&lat=" + myLat + "&lng=" + myLng;
 				request.open("POST", url, true);
 
