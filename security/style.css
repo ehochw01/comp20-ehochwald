@@ -1,0 +1,29 @@
+.header{
+	text-align: center;
+}
+
+.contents {
+	padding-top: 20px; 
+}
+
+body {
+	font-family: "Avenir Next" !important;
+	color: navy;
+	background-color: #FFFFCC;
+	padding-left: 40px;
+	padding-right: 40px;
+	padding-bottom: 50px;
+}
+
+p {
+	padding-top: 0px;
+}
+
+img {
+    display: block;
+    margin: 0 auto;
+}
+
+.bold {
+	font-weight: bold;
+}
